@@ -26,16 +26,8 @@ class Solution:
 
     # Question 2: Which protocols have wrong messages frequency in the session compared to their expected frequency based on FPS?
     def q2(self) -> List[str]:
-        msg_count = {}  # counter
+        msg_count = self._msg_count()
         wrong_freq = []
-        with open(self.data_file_path, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                prot_id = line.split(',')[2]
-                if prot_id not in msg_count:
-                    msg_count[prot_id] = 1
-                else:
-                    msg_count[prot_id] += 1
         protocols = self.protocol_json["protocols"]
         for prot, count in msg_count.items():
             if count != self.expected_freq[int(protocols[prot.strip()]["fps"])] and not protocols[prot.strip()]["dynamic_size"]:
@@ -46,7 +38,16 @@ class Solution:
 
     # Question 3: Which protocols are listed as relevant for the version but are missing in the data file?
     def q3(self) -> List[str]:
-        pass
+        not_listed = []
+        msg_count = self._msg_count()
+        version = self.q1()
+        id_type = self.protocol_json["protocols_by_version"][version]["id_type"]
+        protocols = self.protocol_json["protocols_by_version"][version]["protocols"]
+        for prot in protocols:
+            prot = str(hex(int(prot))) if id_type == "dec" else prot
+            if prot not in msg_count:
+                not_listed.append(prot)
+        return not_listed
 
     # Question 4: Which protocols appear in the data file but are not listed as relevant for the version?
     def q4(self) -> List[str]:
@@ -60,7 +61,19 @@ class Solution:
     def q6(self) -> List[str]:
         pass
 
+    def _msg_count(self):
+        msg_count = {}  # counter
+        with open(self.data_file_path, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                prot_id = line.split(',')[2].strip()
+                if prot_id not in msg_count:
+                    msg_count[prot_id] = 1
+                else:
+                    msg_count[prot_id] += 1
+        return msg_count
+
 
 if __name__ == '__main__':
     sol = Solution("data.txt", "protocol.json")
-    print(sol.q2())
+    print(sol.q3())
