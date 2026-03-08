@@ -8,7 +8,11 @@ class Solution:
 
     # Question 1: What is the version name used in the communication session?
     def q1(self) -> str:
-        pass
+        with open(self.data_file_path, 'r') as f:
+            first_line = f.readline()
+            hexa_version = first_line.split(',')[-1]
+            return bytes.fromhex(hexa_version).decode('ascii')
+
 
     # Question 2: Which protocols have wrong messages frequency in the session compared to their expected frequency based on FPS?
     def q2(self) -> List[str]:
@@ -29,3 +33,8 @@ class Solution:
     # Question 6: Which protocols are marked as non dynamic_size in protocol.json, but appear with inconsistent expected message sizes Integer in the data file?
     def q6(self) -> List[str]:
         pass
+
+
+if __name__ == '__main__':
+    sol = Solution("data.txt", "protocol.json")
+    print(sol.q1())
