@@ -23,7 +23,6 @@ class Solution:
             hexa_version = first_line.split(',')[-1]
             return bytes.fromhex(hexa_version).decode('ascii')
 
-
     # Question 2: Which protocols have wrong messages frequency in the session compared to their expected frequency based on FPS?
     def q2(self) -> List[str]:
         msg_count = self._msg_count()
@@ -33,8 +32,6 @@ class Solution:
             if count != self.expected_freq[int(protocols[prot.strip()]["fps"])]:
                 wrong_freq.append(prot.strip())
         return wrong_freq
-
-
 
     # Question 3: Which protocols are listed as relevant for the version but are missing in the data file?
     def q3(self) -> List[str]:
@@ -72,16 +69,20 @@ class Solution:
             for line_str in lines:
                 line = line_str.split(',')
                 expected = line[3].split(' ')[1]
-                msg_length = len(line[4].split(' ')) - 1
+                msg_length = len(line[4].strip().split(' '))
                 if int(expected) != msg_length:
                     mismatched_protocols.add(line[2].strip())
         return list(mismatched_protocols)
 
-
-
     # Question 6: Which protocols are marked as non dynamic_size in protocol.json, but appear with inconsistent expected message sizes Integer in the data file?
     def q6(self) -> List[str]:
-        pass
+        has_dynamic_size = self._has_different_expected_size()
+        protocols = self.protocol_json["protocols"]
+        ans = []
+        for prot in has_dynamic_size:
+            if not protocols[prot]["dynamic_size"]:
+                ans.append(prot)
+        return ans
 
     def _msg_count(self):
         msg_count = {}  # counter
@@ -95,7 +96,22 @@ class Solution:
                     msg_count[prot_id] += 1
         return msg_count
 
+    def _has_different_expected_size(self):
+        prot_msg_size = {}
+        ans = set()
+        with open(self.data_file_path, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                line_list = line.split(',')
+                prot = line_list[2].strip()
+                expected_size = line_list[3].split(' ')[1]
+                if prot not in prot_msg_size:
+                    prot_msg_size[prot] = expected_size
+                elif prot_msg_size[prot] != expected_size:
+                    ans.add(prot)
+            return list(ans)
+
 
 if __name__ == '__main__':
     sol = Solution("data.txt", "protocol.json")
-    print(sol.q5())
+    print(sol.q6())
