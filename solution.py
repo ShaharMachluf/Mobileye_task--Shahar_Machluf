@@ -51,7 +51,18 @@ class Solution:
 
     # Question 4: Which protocols appear in the data file but are not listed as relevant for the version?
     def q4(self) -> List[str]:
-        pass
+        not_listed = []
+        msg_count = self._msg_count()
+        version = self.q1()
+        id_type = self.protocol_json["protocols_by_version"][version]["id_type"]
+        # convert to set for fast search
+        protocols = set(self.protocol_json["protocols_by_version"][version]["protocols"])
+        for prot in msg_count.keys():
+            org_prot = prot
+            prot = str(int(prot, 16)) if id_type == "dec" else prot
+            if prot not in protocols:
+                not_listed.append(org_prot)
+        return not_listed
 
     # Question 5: Which protocols have at least one message in the session with mismatch between the expected size integer and the actual message content size?
     def q5(self) -> List[str]:
@@ -76,4 +87,4 @@ class Solution:
 
 if __name__ == '__main__':
     sol = Solution("data.txt", "protocol.json")
-    print(sol.q3())
+    print(sol.q4())
