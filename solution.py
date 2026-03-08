@@ -30,7 +30,7 @@ class Solution:
         wrong_freq = []
         protocols = self.protocol_json["protocols"]
         for prot, count in msg_count.items():
-            if count != self.expected_freq[int(protocols[prot.strip()]["fps"])] and not protocols[prot.strip()]["dynamic_size"]:
+            if count != self.expected_freq[int(protocols[prot.strip()]["fps"])]:
                 wrong_freq.append(prot.strip())
         return wrong_freq
 
@@ -66,7 +66,18 @@ class Solution:
 
     # Question 5: Which protocols have at least one message in the session with mismatch between the expected size integer and the actual message content size?
     def q5(self) -> List[str]:
-        pass
+        mismatched_protocols = set()  # no duplications
+        with open(self.data_file_path, 'r') as f:
+            lines = f.readlines()
+            for line_str in lines:
+                line = line_str.split(',')
+                expected = line[3].split(' ')[1]
+                msg_length = len(line[4].split(' ')) - 1
+                if int(expected) != msg_length:
+                    mismatched_protocols.add(line[2].strip())
+        return list(mismatched_protocols)
+
+
 
     # Question 6: Which protocols are marked as non dynamic_size in protocol.json, but appear with inconsistent expected message sizes Integer in the data file?
     def q6(self) -> List[str]:
@@ -87,4 +98,4 @@ class Solution:
 
 if __name__ == '__main__':
     sol = Solution("data.txt", "protocol.json")
-    print(sol.q4())
+    print(sol.q5())
