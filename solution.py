@@ -85,6 +85,7 @@ class Solution:
         return ans
 
     def _msg_count(self):
+        """ Return a dictionary that counts the number of messages for each protocol """
         msg_count = {}  # counter
         with open(self.data_file_path, 'r') as f:
             lines = f.readlines()
@@ -97,6 +98,7 @@ class Solution:
         return msg_count
 
     def _has_different_expected_size(self):
+        """ Return a list of the protocols that has different message expected sizes """
         prot_msg_size = {}
         ans = set()
         with open(self.data_file_path, 'r') as f:
