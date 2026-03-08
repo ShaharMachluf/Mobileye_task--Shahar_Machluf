@@ -1,10 +1,20 @@
+import json
 from typing import List
 
 
 class Solution:
+    expected_freq = {
+        36: 164,
+        18: 84,
+        9: 48,
+        1: 1
+    }
+
     def __init__(self, data_file_path: str, protocol_json_path: str):
         self.data_file_path = data_file_path
         self.protocol_json_path = protocol_json_path
+        with open(protocol_json_path, 'r') as json_file:
+            self.protocol_json = json.load(json_file)
 
     # Question 1: What is the version name used in the communication session?
     def q1(self) -> str:
@@ -16,7 +26,23 @@ class Solution:
 
     # Question 2: Which protocols have wrong messages frequency in the session compared to their expected frequency based on FPS?
     def q2(self) -> List[str]:
-        pass
+        msg_count = {}  # counter
+        wrong_freq = []
+        with open(self.data_file_path, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                prot_id = line.split(',')[2]
+                if prot_id not in msg_count:
+                    msg_count[prot_id] = 1
+                else:
+                    msg_count[prot_id] += 1
+        protocols = self.protocol_json["protocols"]
+        for prot, count in msg_count.items():
+            if count != self.expected_freq[int(protocols[prot.strip()]["fps"])] and not protocols[prot.strip()]["dynamic_size"]:
+                wrong_freq.append(prot.strip())
+        return wrong_freq
+
+
 
     # Question 3: Which protocols are listed as relevant for the version but are missing in the data file?
     def q3(self) -> List[str]:
@@ -37,4 +63,4 @@ class Solution:
 
 if __name__ == '__main__':
     sol = Solution("data.txt", "protocol.json")
-    print(sol.q1())
+    print(sol.q2())
